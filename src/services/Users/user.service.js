@@ -1,5 +1,5 @@
 // services/usersService.js
-const supabase = require('../config/config');
+const supabase = require('../../config/config');
 
 async function getAllUsers() {
   const { data, error } = await supabase.from('users').select('*');
