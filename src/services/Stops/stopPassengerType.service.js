@@ -1,12 +1,12 @@
 const supabase = require('../../config/config');
 
-async function getAllTypes() {
+async function getAllStopPassengerTypes() {
   const { data, error } = await supabase.from('stop_passsenger_types').select('*');
   if (error) throw error;
   return data;
 }
 
-async function getTypeById(id) {
+async function getStopPassengerTypeById(id) {
   const { data, error } = await supabase
     .from('stop_passsenger_types')
     .select('*')
@@ -16,20 +16,20 @@ async function getTypeById(id) {
   return data;
 }
 
-async function createType(typeData) {
+async function createStopPassengerType(entry) {
   const { data, error } = await supabase
     .from('stop_passsenger_types')
-    .insert([typeData])
+    .insert([entry])
     .select()
     .single();
   if (error) throw error;
   return data;
 }
 
-async function updateType(id, typeData) {
+async function updateStopPassengerType(id, entry) {
   const { data, error } = await supabase
     .from('stop_passsenger_types')
-    .update(typeData)
+    .update(entry)
     .eq('id', id)
     .select()
     .single();
@@ -37,7 +37,7 @@ async function updateType(id, typeData) {
   return data;
 }
 
-async function deleteType(id) {
+async function deleteStopPassengerType(id) {
   const { error } = await supabase
     .from('stop_passsenger_types')
     .delete()
@@ -46,9 +46,9 @@ async function deleteType(id) {
 }
 
 module.exports = {
-  getAllTypes,
-  getTypeById,
-  createType,
-  updateType,
-  deleteType,
+  getAllStopPassengerTypes,
+  getStopPassengerTypeById,
+  createStopPassengerType,
+  updateStopPassengerType,
+  deleteStopPassengerType,
 };

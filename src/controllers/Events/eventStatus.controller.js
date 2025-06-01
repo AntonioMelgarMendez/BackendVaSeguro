@@ -1,4 +1,4 @@
-const { getAllEventStatuses } = require('../../services/Events/evenStatus.service');
+const { getAllEventStatuses } = require('../../services/Events/evenStatus.service,');
 
 async function getEventStatuses(req, res) {
   try {
