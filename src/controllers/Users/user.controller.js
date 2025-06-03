@@ -24,27 +24,6 @@ async function getUser(req, res) {
 async function createUser(req, res) {
   try {
     const { forenames, surnames, email, password, phone_number, gender, role_id } = req.body;
-    let avatarUrl = null;
-
-    if (req.file) {
-      const file = req.file;
-      const filePath = `avatars/${Date.now()}-${file.originalname}`;
-
-      const { error } = await supabase.storage
-        .from('useravatar')
-        .upload(filePath, file.buffer, {
-          contentType: file.mimetype,
-        });
-
-      if (error) return res.status(500).json({ error: 'Error al subir imagen a Supabase' });
-
-      const { data: publicUrl } = supabase.storage
-        .from('useravatar')
-        .getPublicUrl(filePath);
-
-      avatarUrl = publicUrl.publicUrl;
-    }
-
     const newUser = await usersService.createUser({
       forenames,
       surnames,
@@ -53,7 +32,7 @@ async function createUser(req, res) {
       phone_number,
       gender,
       role_id,
-      profile_pic: avatarUrl 
+      profile_pic: req.avatarUrl || null
     });
 
     res.status(201).json(newUser);
