@@ -1,6 +1,8 @@
 // controllers/usersController.js
 const usersService = require('../../services/Users/user.service');
 const supabase = require('../../config/config');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 async function getUsers(req, res) {
   try {
@@ -24,11 +26,33 @@ async function getUser(req, res) {
 async function createUser(req, res) {
   try {
     const { forenames, surnames, email, password, phone_number, gender, role_id } = req.body;
+    let avatarUrl = null;
+
+    if (req.file) {
+      const file = req.file;
+      const filePath = `avatars/${Date.now()}-${file.originalname}`;
+
+      const { error } = await supabase.storage
+        .from('useravatar')
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+        });
+
+      if (error) return res.status(500).json({ error: 'Error al subir imagen a Supabase' });
+
+      const { data: publicUrl } = supabase.storage
+        .from('useravatar')
+        .getPublicUrl(filePath);
+
+      avatarUrl = publicUrl.publicUrl;
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await usersService.createUser({
       forenames,
       surnames,
       email,
-      password,
+      password: hashedPassword, 
       phone_number,
       gender,
       role_id,
@@ -92,6 +116,27 @@ async function deleteUser(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    const user = await usersService.getUserByEmail(email);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return res.status(401).json({ error: 'Contraseña incorrecta' });
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role_id, email: user.email },
+      process.env.SUPABASE_JWT_SECRET, 
+      { expiresIn: '7d' }
+    );
+
+    res.json({ token, user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
 
 module.exports = {
   getUsers,
@@ -99,4 +144,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
+  login
 };

@@ -19,5 +19,7 @@ router.put('/:id', authenticateToken, authorizeRoles('admin', 'user'), upload.si
 
 router.delete('/:id', authenticateToken, authorizeRoles('admin','user'), usersController.deleteUser);
 // Solo admin puede eliminar usuarios
+router.post('/login', usersController.login);
+
 
 module.exports = router;

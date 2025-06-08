@@ -6,6 +6,7 @@ const {
   addRegisterCode,
   removeRegisterCode,
 } = require('../../controllers/Events/registerCode.controller');
+const { authenticateToken, authorizeRoles } = require('../../middlewares/authentication');
 
 const router = express.Router();
 

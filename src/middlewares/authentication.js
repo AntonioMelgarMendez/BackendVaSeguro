@@ -7,7 +7,6 @@ function authenticateToken(req, res, next) {
   if (!token) return res.status(401).json({ error: 'Access token missing' });
 
   try {
-    // Verifica token con la clave secreta o con Supabase (depende cómo configures)
     const user = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
     req.user = user; 
     next();

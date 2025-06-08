@@ -6,13 +6,13 @@ const {
   editNotification,
   removeNotification,
 } = require('../../controllers/Events/notification.controller');
-
+const { authenticateToken, authorizeRoles } = require('../../middlewares/authentication');
 const router = express.Router();
 
-router.get('/', getNotifications);
+router.get('/', authenticateToken,getNotifications);
 router.get('/:id', getNotification);
-router.post('/', addNotification);
-router.put('/:id', editNotification);
+router.post('/',addNotification);
+router.put('/:id', authenticateToken,editNotification);
 router.delete('/:id', removeNotification);
 
 module.exports = router;

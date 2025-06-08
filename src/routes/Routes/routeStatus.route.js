@@ -6,13 +6,13 @@ const {
   editRouteStatus,
   removeRouteStatus,
 } = require('../../controllers/Routes/routeStatus.controller');
-
+const { authenticateToken, authorizeRoles } = require('../../middlewares/authentication');
 const router = express.Router();
 
-router.get('/', getRouteStatuses);
-router.get('/:id', getRouteStatus);
-router.post('/', addRouteStatus);
-router.put('/:id', editRouteStatus);
-router.delete('/:id', removeRouteStatus);
+router.get('/',authenticateToken, getRouteStatuses);
+router.get('/:id', authenticateToken,getRouteStatus);
+router.post('/', authenticateToken,addRouteStatus);
+router.put('/:id',authenticateToken, editRouteStatus);
+router.delete('/:id', authenticateToken,removeRouteStatus);
 
 module.exports = router;

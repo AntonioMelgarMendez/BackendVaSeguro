@@ -6,13 +6,13 @@ const {
   updateAbsence,
   deleteAbsence,
 } = require('../../controllers/Events/absent.controller');
-
+const { authenticateToken, authorizeRoles } = require('../../middlewares/authentication');
 const router = express.Router();
 
-router.get('/', getAllAbsences);
-router.get('/:id', getAbsenceById);
-router.post('/', createAbsence);
-router.put('/:id', updateAbsence);
-router.delete('/:id', deleteAbsence);
+router.get('/', authenticateToken,getAllAbsences);
+router.get('/:id',authenticateToken, getAbsenceById);
+router.post('/',authenticateToken, createAbsence);
+router.put('/:id', authenticateToken,updateAbsence);
+router.delete('/:id', authenticateToken,deleteAbsence);
 
 module.exports = router;
