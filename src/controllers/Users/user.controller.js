@@ -70,7 +70,6 @@ async function createUser(req, res) {
     const { data: newUser, error: dbError } = await supabase
       .from('users')
       .insert({
-        id: authData.user.id,
         forenames,
         surnames,
         email,
