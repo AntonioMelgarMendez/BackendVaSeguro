@@ -14,7 +14,9 @@ async function getUserById(id) {
 }
 
 async function createUser(user) {
-  throw new Error('Use the controller createUser function instead');
+  const { data, error } = await supabase.from('users').insert(user).single();
+  if (error) throw error;
+  return data;
 }
 
 async function updateUser(id, user) {
