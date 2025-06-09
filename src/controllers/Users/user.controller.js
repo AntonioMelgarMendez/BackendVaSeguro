@@ -27,18 +27,26 @@ async function createUser(req, res) {
   try {
     const { forenames, surnames, email, password, phone_number, gender, role_id } = req.body;
     let avatarUrl = null;
+    const { data: existingUser, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
 
+    if (existingUser) {
+      return res.status(400).json({ error: 'El usuario ya existe' });
+    }
     if (req.file) {
       const file = req.file;
       const filePath = `avatars/${Date.now()}-${file.originalname}`;
 
-      const { error } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('useravatar')
         .upload(filePath, file.buffer, {
           contentType: file.mimetype,
         });
 
-      if (error) return res.status(500).json({ error: 'Error al subir imagen a Supabase' });
+      if (uploadError) return res.status(500).json({ error: 'Error al subir imagen a Supabase' });
 
       const { data: publicUrl } = supabase.storage
         .from('useravatar')
@@ -46,20 +54,55 @@ async function createUser(req, res) {
 
       avatarUrl = publicUrl.publicUrl;
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await usersService.createUser({
-      forenames,
-      surnames,
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
-      password: hashedPassword, 
-      phone_number,
-      gender,
-      role_id,
-      profile_pic: req.avatarUrl || null
+      password,
+      options: {
+        data: {
+          forenames,
+          surnames,
+          phone_number
+        }
+      }
     });
 
-    res.status(201).json(newUser);
+    if (authError) throw authError;
+    const { data: newUser, error: dbError } = await supabase
+      .from('users')
+      .insert({
+        id: authData.user.id,
+        forenames,
+        surnames,
+        email,
+        password: await bcrypt.hash(password, 10),
+        phone_number,
+        gender,
+        role_id,
+        profile_pic: avatarUrl
+      })
+      .select()
+      .single();
+
+    if (dbError) throw dbError;
+    const { data: session, error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (loginError) throw loginError;
+    res.status(201).json({
+      token: session.session.access_token,
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        forenames: newUser.forenames,
+        surnames: newUser.surnames,
+        phone_number: newUser.phone_number,
+        profile_pic: newUser.profile_pic,
+        role_id: newUser.role_id
+      }
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
