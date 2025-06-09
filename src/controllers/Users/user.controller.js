@@ -27,7 +27,12 @@ async function createUser(req, res) {
   try {
     const { forenames, surnames, email, password, phone_number, gender, role_id } = req.body;
     let avatarUrl = null;
-    const existingUser = await usersService.getUserByEmail(email);
+    const { data: existingUser, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle(); 
+
     if (existingUser) {
       return res.status(400).json({ error: 'El usuario ya existe' });
     }
@@ -49,20 +54,40 @@ async function createUser(req, res) {
 
       avatarUrl = publicUrl.publicUrl;
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await usersService.createUser({
-      forenames,
-      surnames,
-      email,
-      password: hashedPassword,
-      phone_number,
-      gender,
-      role_id,
-      profile_pic: avatarUrl
+    const { data: newUser, error: createError } = await supabase
+      .from('users')
+      .insert({
+        forenames,
+        surnames,
+        email,
+        password: await bcrypt.hash(password, 10),
+        phone_number,
+        gender,
+        role_id,
+        profile_pic: avatarUrl
+      })
+      .select()
+      .single(); 
+
+    if (createError) throw createError;
+    const token = jwt.sign(
+      { id: newUser.id, role: newUser.role_id, email: newUser.email },
+      process.env.SUPABASE_JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    res.status(201).json({
+      token,
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        forenames: newUser.forenames,
+        surnames: newUser.surnames,
+        phone_number: newUser.phone_number,
+        profile_pic: newUser.profile_pic,
+        role_id: newUser.role_id
+      }
     });
-    req.body = { email, password }; 
-    await login(req, res); 
-    
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
