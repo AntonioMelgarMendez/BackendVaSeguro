@@ -21,5 +21,7 @@ router.delete('/:id', authenticateToken, authorizeRoles('admin','user'), usersCo
 // Solo admin puede eliminar usuarios
 router.post('/login', usersController.login);
 
+router.post('/logout', authenticateToken, usersController.logout);
+
 
 module.exports = router;
