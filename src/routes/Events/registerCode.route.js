@@ -15,5 +15,6 @@ router.get('/:id', getRegisterCode);
 router.post('/validate', validateCode);
 router.post('/', addRegisterCode);
 router.delete('/:id', removeRegisterCode);
+router.patch('/:id/state', updateCodeState);
 
 module.exports = router;

@@ -23,10 +23,25 @@ async function getRegisterCodeByCode(code) {
 
 // Crear un nuevo código
 async function createRegisterCode({ code, driver_id }) {
-  const { data, error } = await supabase.from('register_code').insert([{ code, driver_id }]).select().single();
+  const { data, error } = await supabase
+    .from('register_code')
+    .insert([{ code, driver_id, state: false }]) 
+    .select()
+    .single();
   if (error) throw error;
   return data;
 }
+async function updateRegisterCodeState(id, newState) {
+  const { data, error } = await supabase
+    .from('register_code')
+    .update({ state: newState })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 
 // Eliminar código
 async function deleteRegisterCode(id) {
@@ -41,4 +56,5 @@ module.exports = {
   getRegisterCodeByCode,
   createRegisterCode,
   deleteRegisterCode,
+  updateRegisterCodeState,
 };

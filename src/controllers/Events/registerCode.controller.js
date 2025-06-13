@@ -51,6 +51,16 @@ const {
       res.status(500).json({ error: err.message });
     }
   }
+  async function updateCodeState(req, res) {
+    try {
+      const { id } = req.params;
+      const { state } = req.body;
+      const updatedCode = await updateRegisterCodeState(id, state);
+      res.json(updatedCode);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
   
   module.exports = {
     getRegisterCodes,
@@ -58,5 +68,7 @@ const {
     validateCode,
     addRegisterCode,
     removeRegisterCode,
+    updateCodeState,
+
   };
   
