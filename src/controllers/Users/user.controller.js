@@ -26,34 +26,18 @@ async function getUser(req, res) {
 async function createUser(req, res) {
   try {
     const { forenames, surnames, email, password, phone_number, gender, role_id } = req.body;
-    let avatarUrl = null;
-    const { data: existingUser, error: userError } = await supabase
+    let avatarUrl = req.avatarUrl || null;
+
+    const { data: existingUser } = await supabase
       .from('users')
       .select('*')
       .eq('email', email)
-      .maybeSingle(); 
+      .maybeSingle();
 
     if (existingUser) {
       return res.status(400).json({ error: 'El usuario ya existe' });
     }
-    if (req.file) {
-      const file = req.file;
-      const filePath = `avatars/${Date.now()}-${file.originalname}`;
 
-      const { error } = await supabase.storage
-        .from('useravatar')
-        .upload(filePath, file.buffer, {
-          contentType: file.mimetype,
-        });
-
-      if (error) return res.status(500).json({ error: 'Error al subir imagen a Supabase' });
-
-      const { data: publicUrl } = supabase.storage
-        .from('useravatar')
-        .getPublicUrl(filePath);
-
-      avatarUrl = publicUrl.publicUrl;
-    }
     const { data: newUser, error: createError } = await supabase
       .from('users')
       .insert({
@@ -67,7 +51,7 @@ async function createUser(req, res) {
         profile_pic: avatarUrl
       })
       .select()
-      .single(); 
+      .single();
 
     if (createError) throw createError;
     const token = jwt.sign(
