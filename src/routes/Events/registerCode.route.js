@@ -5,6 +5,7 @@ const {
   validateCode,
   addRegisterCode,
   removeRegisterCode,
+  updateCodeState,
 } = require('../../controllers/Events/registerCode.controller');
 const { authenticateToken, authorizeRoles } = require('../../middlewares/authentication');
 
