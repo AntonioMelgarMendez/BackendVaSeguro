@@ -52,6 +52,7 @@ async function createUser(req, res) {
       })
       .select()
       .single();
+    console.log("Usuario"+role_id)
 
     if (createError) throw createError;
     if (role_id === 4) {
