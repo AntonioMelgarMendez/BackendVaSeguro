@@ -3,7 +3,7 @@ const usersService = require('../../services/Users/user.service');
 const supabase = require('../../config/config');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-import { createRegisterCode } from '../../services/Events/registerCode.service';
+const { createRegisterCode } = require('../../services/Events/registerCode.service');
 
 async function getUsers(req, res) {
   try {
