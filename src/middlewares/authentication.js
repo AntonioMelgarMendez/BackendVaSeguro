@@ -1,5 +1,6 @@
 
 const jwt = require('jsonwebtoken'); 
+const supabase = require('../config/config');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -16,11 +17,36 @@ function authenticateToken(req, res, next) {
 }
 
 function authorizeRoles(...allowedRoles) {
-  return (req, res, next) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'Access denied' });
+  return async (req, res, next) => {
+    try {
+      const roleId = req.user?.role;
+      console.log('token', req.user);
+
+      if (!roleId) {
+        return res.status(403).json({ error: 'User role_id not found in token' });
+      }
+
+      const { data, error } = await supabase
+        .from('roles')
+        .select('role_name')
+        .eq('id', roleId)
+        .single();
+
+      if (error || !data) {
+        return res.status(403).json({ error: 'Role not found' });
+      }
+
+      const userRole = data.role_name;
+
+      if (!allowedRoles.includes(userRole)) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      next();
+    } catch (err) {
+      console.error('Authorization error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
     }
-    next();
   };
 }
 module.exports = {
