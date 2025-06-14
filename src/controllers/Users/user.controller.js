@@ -156,7 +156,8 @@ async function login(req, res) {
       const registerCode = await getRegisterCodeByDriverId(user.id);
       if (!registerCode || registerCode.state !== true) {
         return res.status(403).json({
-          error: 'Cuenta no verificada. Espere la aprobación del administrador.'
+          error: 'Cuenta no verificada. Espere la aprobación del administrador.',
+          code: 403
         });
       }
     }
