@@ -4,6 +4,7 @@ const {
     getRegisterCodeByCode,
     createRegisterCode,
     deleteRegisterCode,
+    updateRegisterCodeState,
     getUsersByIds
   } = require('../../services/Events/registerCode.service');
   const supabase = require('../../config/config');
@@ -57,7 +58,7 @@ const {
     try {
       const { id } = req.params;
       const { state } = req.body;
-      const updatedCode = await updateRegisterCodeState(id, state);
+      const updatedCode = await updateRegisterCodeState(id);
       res.json(updatedCode);
     } catch (err) {
       res.status(500).json({ error: err.message });

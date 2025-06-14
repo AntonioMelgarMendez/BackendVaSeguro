@@ -45,7 +45,7 @@ async function createRegisterCode({ code, driver_id }) {
 async function updateRegisterCodeState(id, newState) {
   const { data, error } = await supabase
     .from('register_code')
-    .update({ state: newState })
+    .update({ state: true })
     .eq('id', id)
     .select()
     .single();
