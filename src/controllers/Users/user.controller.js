@@ -4,6 +4,7 @@ const supabase = require('../../config/config');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { createRegisterCode } = require('../../services/Events/registerCode.service');
+const { getRegisterCodeByDriverId } = require('../../services/Events/registerCode.service');
 
 async function getUsers(req, res) {
   try {
@@ -151,9 +152,18 @@ async function login(req, res) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(401).json({ error: 'Contraseña incorrecta' });
 
+    if (user.role_id== 4) {
+      const registerCode = await getRegisterCodeByDriverId(user.id);
+      if (!registerCode || registerCode.state !== true) {
+        return res.status(403).json({
+          error: 'Cuenta no verificada. Espere la aprobación del administrador.'
+        });
+      }
+    }
+
     const token = jwt.sign(
       { id: user.id, role: user.role_id, email: user.email },
-      process.env.SUPABASE_JWT_SECRET, 
+      process.env.SUPABASE_JWT_SECRET,
       { expiresIn: '7d' }
     );
 

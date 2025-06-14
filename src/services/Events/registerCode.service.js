@@ -13,6 +13,17 @@ async function getRegisterCodeById(id) {
   if (error) throw error;
   return data;
 }
+async function getRegisterCodeByDriverId(driverId) {
+  const { data, error } = await supabase
+    .from('register_code')
+    .select('*')
+    .eq('driver_id', driverId)
+    .maybeSingle(); 
+
+  if (error) throw error;
+  return data;
+}
+
 
 // Obtener código por el valor del código (para validarlo al registrar padre)
 async function getRegisterCodeByCode(code) {
@@ -57,4 +68,5 @@ module.exports = {
   createRegisterCode,
   deleteRegisterCode,
   updateRegisterCodeState,
+  getRegisterCodeByDriverId
 };
