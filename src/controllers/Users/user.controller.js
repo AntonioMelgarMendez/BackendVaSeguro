@@ -37,7 +37,6 @@ async function createUser(req, res) {
     if (existingUser) {
       return res.status(400).json({ error: 'El usuario ya existe' });
     }
-
     const { data: newUser, error: createError } = await supabase
       .from('users')
       .insert({
@@ -54,6 +53,13 @@ async function createUser(req, res) {
       .single();
 
     if (createError) throw createError;
+    if (role_id === 4) {
+      const generatedCode = generateRandomCode();
+      await createRegisterCode({
+        code: generatedCode,
+        driver_id: newUser.id
+      });
+    }
     const token = jwt.sign(
       { id: newUser.id, role: newUser.role_id, email: newUser.email },
       process.env.SUPABASE_JWT_SECRET,
@@ -167,3 +173,11 @@ module.exports = {
   login,
   logout
 };
+function generateRandomCode(length = 6) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
