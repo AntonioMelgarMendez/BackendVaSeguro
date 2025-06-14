@@ -55,13 +55,19 @@ async function createUser(req, res) {
     console.log("Usuario"+role_id)
 
     if (createError) throw createError;
+
     if (role_id === 4) {
       const generatedCode = generateRandomCode();
-      await createRegisterCode({
+      console.log('Generando código:', generatedCode, 'para driver_id:', newUser.id);
+    
+      const registerCode = await createRegisterCode({
         code: generatedCode,
         driver_id: newUser.id
       });
+    
+      console.log('Código generado correctamente:', registerCode);
     }
+    
     const token = jwt.sign(
       { id: newUser.id, role: newUser.role_id, email: newUser.email },
       process.env.SUPABASE_JWT_SECRET,
