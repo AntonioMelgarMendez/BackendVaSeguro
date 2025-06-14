@@ -52,11 +52,10 @@ async function createUser(req, res) {
       })
       .select()
       .single();
-    console.log("Usuario"+role_id)
 
     if (createError) throw createError;
 
-    if (role_id === 4) {
+    if (role_id == 4) {
       const generatedCode = generateRandomCode();
       console.log('Generando código:', generatedCode, 'para driver_id:', newUser.id);
     
