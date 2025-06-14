@@ -60,6 +60,15 @@ async function deleteRegisterCode(id) {
   if (error) throw error;
   return { message: 'Código eliminado correctamente' };
 }
+async function getUsersByIds(ids) {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .in('id', ids);
+
+  if (error) throw error;
+  return data;
+}
 
 module.exports = {
   getAllRegisterCodes,
@@ -68,5 +77,6 @@ module.exports = {
   createRegisterCode,
   deleteRegisterCode,
   updateRegisterCodeState,
-  getRegisterCodeByDriverId
+  getRegisterCodeByDriverId,
+  getUsersByIds
 };

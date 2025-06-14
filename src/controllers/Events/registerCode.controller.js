@@ -4,7 +4,9 @@ const {
     getRegisterCodeByCode,
     createRegisterCode,
     deleteRegisterCode,
+    getUsersByIds
   } = require('../../services/Events/registerCode.service');
+  const supabase = require('../../config/config');
   
   async function getRegisterCodes(req, res) {
     try {
@@ -61,6 +63,29 @@ const {
       res.status(500).json({ error: err.message });
     }
   }
+
+  async function getUserCodes(req, res) {
+    try {
+
+      const { data: codes, error } = await supabase
+        .from('register_code')
+        .select('driver_id')
+        .eq('state', false);
+  
+      if (error) throw error;
+      const userIds = [...new Set(codes.map(c => c.driver_id))];
+  
+      if (userIds.length === 0) {
+        return res.json([]); 
+      }
+      const users = await getUsersByIds(userIds);
+      res.json(users);
+    } catch (err) {
+      console.error('Error getting user codes:', err.message);
+      res.status(500).json({ error: 'Failed to fetch users with pending codes' });
+    }
+  }
+  
   
   module.exports = {
     getRegisterCodes,
@@ -69,6 +94,7 @@ const {
     addRegisterCode,
     removeRegisterCode,
     updateCodeState,
+    getUserCodes
 
   };
   
