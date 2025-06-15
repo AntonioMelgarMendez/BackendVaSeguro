@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../../controllers/Trips/vehicles.controller');
 const upload = require('../../middlewares/upload');
+const { authenticateToken, authorizeRoles } = require('../../middlewares/authentication');
 
 router.get('/',authenticateToken, authorizeRoles('admin'), controller.getAll);
 router.get('/:id',authenticateToken, authorizeRoles('admin','user','driver'), controller.getById);
