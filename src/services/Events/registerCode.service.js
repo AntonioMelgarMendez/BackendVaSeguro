@@ -42,11 +42,19 @@ async function createRegisterCode({ code, driver_id }) {
   if (error) throw error;
   return data;
 }
-async function updateRegisterCodeState(id, newState) {
+async function updateRegisterCodeState(driverId, newState) {
+  const { data: code, error: findError } = await supabase
+    .from('register_code')
+    .select('id')
+    .eq('driver_id', driverId)
+    .single();
+  if (findError) throw findError;
+
+  // Update the state using the found id
   const { data, error } = await supabase
     .from('register_code')
-    .update({ state: true })
-    .eq('id', id)
+    .update({ state: newState })
+    .eq('id', code.id)
     .select()
     .single();
   if (error) throw error;

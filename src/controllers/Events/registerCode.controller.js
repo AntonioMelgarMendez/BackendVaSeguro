@@ -58,7 +58,7 @@ const {
     try {
       const { id } = req.params;
       const { state } = req.body;
-      const updatedCode = await updateRegisterCodeState(id);
+      const updatedCode = await updateRegisterCodeState(id,true);
       res.json(updatedCode);
     } catch (err) {
       res.status(500).json({ error: err.message });
