@@ -19,7 +19,7 @@ router.get('/:id', getRegisterCode);
 router.get('/', getRegisterCodes);
 router.post('/validate', validateCode);
 router.post('/', addRegisterCode);
-router.delete('/:id',  authenticateToken,authorizeRoles('admin'),removeRegisterCode);
-router.patch('/:id/state', authenticateToken,authorizeRoles('admin'), updateCodeState);
+router.delete('/:id',authenticateToken, authorizeRoles('admin'),removeRegisterCode);
+router.patch('/:id/state',authenticateToken, authorizeRoles('admin'), updateCodeState);
 
 module.exports = router;
