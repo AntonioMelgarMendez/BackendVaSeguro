@@ -64,7 +64,7 @@ async function updateRegisterCodeState(driverId, newState) {
 
 // Eliminar código
 async function deleteRegisterCode(id) {
-  const { error } = await supabase.from('register_code').delete().eq('id', id);
+  const { error } = await supabase.from('register_code').delete().eq('driver_id', id);
   if (error) throw error;
   return { message: 'Código eliminado correctamente' };
 }

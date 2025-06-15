@@ -57,7 +57,6 @@ const {
   async function updateCodeState(req, res) {
     try {
       const { id } = req.params;
-      const { state } = req.body;
       const updatedCode = await updateRegisterCodeState(id,true);
       res.json(updatedCode);
     } catch (err) {
