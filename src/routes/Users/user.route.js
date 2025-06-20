@@ -14,7 +14,7 @@ router.get('/:id', authenticateToken, authorizeRoles('admin', 'user'), usersCont
 
 router.post('/', upload.single('profile_pic'), uploadAvatarToSupabase, usersController.createUser);
 
-router.put('/:id', authenticateToken, authorizeRoles('admin', 'user'), upload.single('avatar'), usersController.updateUser);
+router.put('/:id', authenticateToken, authorizeRoles('admin', 'user'), uploadAvatarToSupabase, usersController.updateUser);
 // Admin puede editar cualquier usuario, user solo el suyo (de nuevo, verificar en controlador)
 
 router.delete('/:id', authenticateToken, authorizeRoles('admin','user'), usersController.deleteUser);
