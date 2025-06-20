@@ -94,30 +94,19 @@ async function createUser(req, res) {
 async function updateUser(req, res) {
   try {
     const userUpdate = req.body;
-
-    if (req.file) {
-      const file = req.file;
-      const filePath = `avatars/${Date.now()}-${file.originalname}`;
-
-      const { error } = await supabase.storage
-        .from('useravatar')
-        .upload(filePath, file.buffer, {
-          contentType: file.mimetype,
-        });
-
-      if (error) return res.status(500).json({ error: 'Error al subir imagen a Supabase' });
-
-      const { data: publicUrl } = supabase.storage
-        .from('useravatar')
-        .getPublicUrl(filePath);
-
-      userUpdate.profile_pic = publicUrl.publicUrl;
+    if (req.avatarUrl) {
+      userUpdate.profile_pic = req.avatarUrl;
     }
 
     const updatedUser = await usersService.updateUser(req.params.id, userUpdate);
-    if (!updatedUser) return res.status(404).json({ error: 'User not found' });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     res.json(updatedUser);
   } catch (error) {
+    console.error('Error al actualizar usuario:', error);
     res.status(500).json({ error: error.message });
   }
 }
