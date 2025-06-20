@@ -197,6 +197,7 @@ async function logout(req, res) {
 }
 
 async function changePassword(req, res) {
+  console.log("Ji")
   try {
     const { currentPassword, newPassword } = req.body;
     const userId = req.params.id;
