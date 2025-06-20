@@ -94,29 +94,36 @@ async function createUser(req, res) {
 async function updateUser(req, res) {
   try {
     const userUpdate = req.body;
+    const userId = req.params.id;
+
+    // ✅ Obtener los datos actuales del usuario
+    const currentUser = await usersService.getUserById(userId);
+    if (!currentUser) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
     if (req.avatarUrl && currentUser.profile_pic) {
       const oldUrl = currentUser.profile_pic;
       const pathMatch = oldUrl.match(/usersavatar\/(.+)$/);
       if (pathMatch && pathMatch[1]) {
         const oldPath = pathMatch[1];
-    
+
         const { error: deleteError } = await supabase
           .storage
           .from('usersavatar')
           .remove([oldPath]);
-    
+
         if (deleteError) {
           console.warn('No se pudo eliminar la imagen anterior:', deleteError.message);
         } else {
           console.log('Imagen anterior eliminada:', oldPath);
         }
       }
-    }    
+    }
     if (req.avatarUrl) {
       userUpdate.profile_pic = req.avatarUrl;
     }
 
-    const updatedUser = await usersService.updateUser(req.params.id, userUpdate);
+    const updatedUser = await usersService.updateUser(userId, userUpdate);
     if (updatedUser === null) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -127,6 +134,7 @@ async function updateUser(req, res) {
     res.status(500).json({ error: error.message || 'Error interno' });
   }
 }
+
 
 
 
