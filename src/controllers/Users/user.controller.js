@@ -94,22 +94,23 @@ async function createUser(req, res) {
 async function updateUser(req, res) {
   try {
     const userUpdate = req.body;
+
     if (req.avatarUrl) {
       userUpdate.profile_pic = req.avatarUrl;
     }
 
     const updatedUser = await usersService.updateUser(req.params.id, userUpdate);
-
-    if (!updatedUser) {
+    if (updatedUser === null) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     res.json(updatedUser);
   } catch (error) {
     console.error('Error al actualizar usuario:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || 'Error interno' });
   }
 }
+
 
 
 async function deleteUser(req, res) {

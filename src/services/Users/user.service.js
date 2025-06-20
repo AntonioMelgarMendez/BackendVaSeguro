@@ -20,7 +20,7 @@ async function createUser(user) {
 }
 
 async function updateUser(id, user) {
-  const { data, error } = await supabase.from('users').update(user).eq('id', id).single();
+  const { data, error } = await supabase.from('users').update(user).eq('id', id).maybeSingle();
   if (error) throw error;
   return data;
 }
