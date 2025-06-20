@@ -20,10 +20,17 @@ async function createUser(user) {
 }
 
 async function updateUser(id, user) {
-  const { data, error } = await supabase.from('users').update(user).eq('id', id).maybeSingle();
+  const { data, error } = await supabase
+    .from('users')
+    .update(user)
+    .eq('id', id)
+    .select()         
+    .maybeSingle();   
+
   if (error) throw error;
   return data;
 }
+
 
 async function deleteUser(id) {
   const { data, error } = await supabase.from('users').delete().eq('id', id);
