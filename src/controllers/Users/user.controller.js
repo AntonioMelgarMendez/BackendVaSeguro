@@ -94,7 +94,24 @@ async function createUser(req, res) {
 async function updateUser(req, res) {
   try {
     const userUpdate = req.body;
-
+    if (req.avatarUrl && currentUser.profile_pic) {
+      const oldUrl = currentUser.profile_pic;
+      const pathMatch = oldUrl.match(/usersavatar\/(.+)$/);
+      if (pathMatch && pathMatch[1]) {
+        const oldPath = pathMatch[1];
+    
+        const { error: deleteError } = await supabase
+          .storage
+          .from('usersavatar')
+          .remove([oldPath]);
+    
+        if (deleteError) {
+          console.warn('No se pudo eliminar la imagen anterior:', deleteError.message);
+        } else {
+          console.log('Imagen anterior eliminada:', oldPath);
+        }
+      }
+    }    
     if (req.avatarUrl) {
       userUpdate.profile_pic = req.avatarUrl;
     }
@@ -171,6 +188,60 @@ async function logout(req, res) {
   return res.status(200).json({ message: 'Logged out successfully' });
 }
 
+async function changePassword(req, res) {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.params.id;
+
+    const user = await usersService.getUserById(userId);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await usersService.updateUser(userId, { password: hashedPassword });
+
+    res.json({ message: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+async function recoverPassword(req, res) {
+  try {
+    const { email } = req.body;
+
+    const user = await usersService.getUserByEmail(email);
+    if (!user) return res.status(404).json({ error: 'Correo no encontrado' });
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.RESET_PASSWORD_SECRET,
+      { expiresIn: '15m' }
+    );
+    console.log(`Token de recuperación para ${email}: ${token}`);
+
+    res.json({ message: 'Correo de recuperación enviado (simulado)' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+async function resetPassword(req, res) {
+  try {
+    const { token, newPassword } = req.body;
+
+    const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
+    const userId = decoded.id;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await usersService.updateUser(userId, { password: hashedPassword });
+
+    res.json({ message: 'Contraseña restablecida con éxito' });
+  } catch (err) {
+    res.status(400).json({ error: 'Token inválido o expirado' });
+  }
+}
+
 
 module.exports = {
   getUsers,
@@ -179,7 +250,11 @@ module.exports = {
   updateUser,
   deleteUser,
   login,
-  logout
+  logout,
+  changePassword,
+  recoverPassword,
+  resetPassword
+
 };
 function generateRandomCode(length = 6) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

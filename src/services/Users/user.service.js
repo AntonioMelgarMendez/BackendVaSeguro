@@ -13,6 +13,7 @@ async function getUserById(id) {
   return data;
 }
 
+
 async function createUser(user) {
   const { data, error } = await supabase.from('users').insert(user).single();
   if (error) throw error;

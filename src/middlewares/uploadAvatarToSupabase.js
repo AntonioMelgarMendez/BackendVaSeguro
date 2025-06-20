@@ -21,7 +21,8 @@ const uploadAvatarToSupabase = async (req, res, next) => {
     const { data: publicUrlData } = supabase.storage
       .from('usersavatar')
       .getPublicUrl(filePath);
-
+    
+    
     req.avatarUrl = publicUrlData.publicUrl;
     next();
   } catch (err) {
