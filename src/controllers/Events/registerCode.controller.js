@@ -31,7 +31,11 @@ const {
     try {
       const { code } = req.body;
       const found = await getRegisterCodeByCode(code);
-      res.json({ valid: true, data: found });
+      if (!found) throw new Error('Código no encontrado');
+      const users = await getUsersByIds([found.driver_id]);
+      const driver = users && users.length > 0 ? users[0] : null;
+      if (!driver) throw new Error('Conductor no encontrado');
+      res.json({ valid: true, driver });
     } catch (err) {
       res.status(400).json({ valid: false, error: 'Código inválido' });
     }
