@@ -9,9 +9,13 @@ async function getAllRegisterCodes() {
 
 // Obtener un código por ID
 async function getRegisterCodeById(id) {
-  const { data, error } = await supabase.from('register_code').select('*').eq('id', id).single();
+  const { data, error } = await supabase
+    .from('register_code')
+    .select('code')
+    .eq('id', id)
+    .single();
   if (error) throw error;
-  return data;
+  return data.code; 
 }
 async function getRegisterCodeByDriverId(driverId) {
   const { data, error } = await supabase
