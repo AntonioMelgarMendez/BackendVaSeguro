@@ -8,14 +8,15 @@ async function getAllRegisterCodes() {
 }
 
 // Obtener un código por ID
-async function getRegisterCodeById(id) {
+async function getRegisterCodeById(driverId) {
   const { data, error } = await supabase
     .from('register_code')
     .select('code')
-    .eq('id', id)
-    .single();
+    .eq('driver_id', driverId)
+    .maybeSingle(); // Devuelve null si no hay coincidencia
   if (error) throw error;
-  return data.code; 
+  if (!data) throw new Error('No code found for this driver_id');
+  return data.code;
 }
 async function getRegisterCodeByDriverId(driverId) {
   const { data, error } = await supabase
