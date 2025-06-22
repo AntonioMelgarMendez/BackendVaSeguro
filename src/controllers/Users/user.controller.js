@@ -1,10 +1,15 @@
 // controllers/usersController.js
+const { Resend } = require('resend');
 const usersService = require('../../services/Users/user.service');
 const supabase = require('../../config/config');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { createRegisterCode } = require('../../services/Events/registerCode.service');
 const { getRegisterCodeByDriverId } = require('../../services/Events/registerCode.service');
+const resend = new Resend(process.env.RESEND_API_KEY);
+function generateCode(length = 6) {
+  return Math.floor(100000 + Math.random() * 900000).toString(); 
+}
 
 async function getUsers(req, res) {
   try {
@@ -222,34 +227,67 @@ async function recoverPassword(req, res) {
     const user = await usersService.getUserByEmail(email);
     if (!user) return res.status(404).json({ error: 'Correo no encontrado' });
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.RESET_PASSWORD_SECRET,
-      { expiresIn: '15m' }
-    );
-    console.log(`Token de recuperación para ${email}: ${token}`);
+    const code = generateCode();
+    await usersService.saveResetCode(email, code); 
+    await resend.emails.send({
+      from: 'VaSeguro <noreply@sonoradinamita.live>',
+      to: email,
+      subject: 'Tu código para restablecer contraseña',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <!-- Logo -->
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="https://gzukutdyhavnvjpbmxxb.supabase.co/storage/v1/object/public/usersavatar/avatars/VaSeguro_logo.png" alt="VaSeguro Logo" style="max-width: 200px; height: auto;">
+          </div>
+    
+          <!-- Contenido -->
+          <h2 style="color: #2E86DE; text-align: center;">Hola ${user.forenames || 'usuario'},</h2>
+          <p style="text-align: center;">Recibiste este correo porque solicitaste restablecer tu contraseña.</p>
+          
+          <!-- Código -->
+          <div style="background: #f5f5f5; padding: 15px; text-align: center; margin: 20px 0; border-radius: 6px;">
+            <p style="margin: 0; font-weight: bold; color: #333;">Tu código de verificación es:</p>
+            <h1 style="font-size: 32px; letter-spacing: 4px; color: #2E86DE; margin: 10px 0;">${code}</h1>
+            <p style="margin: 0; font-size: 12px; color: #777;">Válido por 15 minutos</p>
+          </div>
+    
+          <!-- Footer -->
+          <div style="text-align: center; margin-top: 30px; color: #777; font-size: 12px; border-top: 1px solid #e0e0e0; padding-top: 20px;">
+            <p>Si no solicitaste este cambio, ignora este mensaje.</p>
+            <p>© ${new Date().getFullYear()} VaSeguro. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      `,
+    });
 
-    res.json({ message: 'Correo de recuperación enviado (simulado)' });
+    res.json({ message: 'Código de verificación enviado por correo' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 }
-async function resetPassword(req, res) {
+async function verifyResetCode(req, res) {
   try {
-    const { token, newPassword } = req.body;
+    const { email, code, newPassword } = req.body;
 
-    const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
-    const userId = decoded.id;
+    const isValid = await usersService.validateResetCode(email, code); 
+    if (!isValid) {
+      return res.status(400).json({ error: 'Código inválido o expirado' });
+    }
 
+    const user = await usersService.getUserByEmail(email);
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await usersService.updateUser(userId, { password: hashedPassword });
+    await usersService.updateUser(user.id, { password: hashedPassword });
+
+    // Opcional: eliminar el código de la base de datos
+    await usersService.clearResetCode(email);
 
     res.json({ message: 'Contraseña restablecida con éxito' });
   } catch (err) {
-    res.status(400).json({ error: 'Token inválido o expirado' });
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 }
-
 
 module.exports = {
   getUsers,
@@ -261,7 +299,8 @@ module.exports = {
   logout,
   changePassword,
   recoverPassword,
-  resetPassword
+  verifyResetCode
+
 
 };
 function generateRandomCode(length = 6) {

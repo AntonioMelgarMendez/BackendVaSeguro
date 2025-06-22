@@ -27,7 +27,5 @@ router.put('/:id/password', authenticateToken, authorizeRoles('admin', 'user','d
 
 router.post('/recover-password', usersController.recoverPassword);
 
-router.post('/reset-password', usersController.resetPassword);
-
 
 module.exports = router;

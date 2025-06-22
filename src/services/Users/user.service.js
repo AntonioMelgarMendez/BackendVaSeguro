@@ -52,6 +52,57 @@ async function logout(token){
       console.error('Error signing out:', error);
     });
 }
+async function saveResetCode(email, code) {
+  const expiredAt = new Date(Date.now() + 15 * 60 * 1000); 
+
+  // Revisa si ya existe un código para ese correo
+  const { data: existing, error: fetchError } = await supabase
+    .from('recovery_code')
+    .select('*')
+    .eq('mail', email)
+    .single();
+
+  if (fetchError && fetchError.code !== 'PGRST116') throw fetchError; // error diferente a "row not found"
+
+  let result;
+  if (existing) {
+    // Actualizar código
+    const { error } = await supabase
+      .from('recovery_code')
+      .update({ code, expired_at: expiredAt })
+      .eq('mail', email);
+    if (error) throw error;
+  } else {
+    // Insertar nuevo
+    const { error } = await supabase
+      .from('recovery_code')
+      .insert({ mail: email, code, expired_at: expiredAt });
+    if (error) throw error;
+  }
+}
+
+// Verifica si un código es válido
+async function validateResetCode(email, code) {
+  const { data, error } = await supabase
+    .from('recovery_code')
+    .select('*')
+    .eq('mail', email)
+    .eq('code', code)
+    .lte('expired_at', new Date().toISOString()) // debe ser mayor que ahora
+    .maybeSingle();
+
+  if (error) throw error;
+  return !!data;
+}
+
+// Elimina el código una vez usado
+async function clearResetCode(email) {
+  const { error } = await supabase
+    .from('recovery_code')
+    .delete()
+    .eq('mail', email);
+  if (error) throw error;
+}
 
 module.exports = {
   getAllUsers,
@@ -60,5 +111,8 @@ module.exports = {
   updateUser,
   deleteUser,
   getUserByEmail,
-  logout
+  logout,
+  saveResetCode,
+  validateResetCode,  
+  clearResetCode
 };
