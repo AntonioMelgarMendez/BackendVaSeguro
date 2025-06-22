@@ -16,7 +16,7 @@ const uploadChildrenAvatarToSupabase = require('../../middlewares/uploadChildren
 router.get('/', authenticateToken, getChildren);
 router.get('/:id',authenticateToken,getChild);
 router.post(
-  '/children',
+  '/',
   authenticateToken,
   upload.single('profile_pic'),
   uploadChildrenAvatarToSupabase,
