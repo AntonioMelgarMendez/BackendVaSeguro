@@ -26,10 +26,11 @@ async function getChild(req, res) {
   }
 }
 
+// controllers/childrenController.js
 async function create(req, res) {
   try {
     const { forenames, surnames, birth_date, medical_info, gender, parent_id, driver_id } = req.body;
-    const profilePicUrl = req.file ? await uploadToStorage(req.file) : null; 
+    const profilePicUrl = req.avatarUrl || null;
 
     const { data, error } = await supabase
       .from('children')
