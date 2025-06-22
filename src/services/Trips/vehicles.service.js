@@ -15,6 +15,15 @@ async function getVehicleById(id) {
   if (error) throw error;
   return data;
 }
+async function getByDriverId(driver_id){
+  const{data, error}=await supabase
+  .from('vehicles')
+  .select('*')
+  .eq('driver_id',driver_id)
+  .single();
+  if(error) throw error;
+  return data;
+}
 
 async function createVehicle(vehicle) {
   const { data, error } = await supabase
@@ -51,4 +60,5 @@ module.exports = {
   createVehicle,
   updateVehicle,
   deleteVehicle,
+  getByDriverId
 };

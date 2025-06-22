@@ -18,6 +18,16 @@ async function getById(req, res) {
     res.status(404).json({ error: error.message });
   }
 }
+async function getByDriverId(req,res){
+  try{
+    const {driver_id}=req.params;
+    const data= await service.getByDriverId(driver_id);
+    res.json(data)
+  }
+  catch(error){
+    res.status(4004).json({error:error.message})
+  }
+}
 
 
 async function create(req, res) {
@@ -116,4 +126,5 @@ module.exports = {
   create,
   update,
   remove,
+  getByDriverId
 };
