@@ -81,14 +81,13 @@ async function saveResetCode(email, code) {
   }
 }
 
-// Verifica si un código es válido
 async function validateResetCode(email, code) {
   const { data, error } = await supabase
     .from('recovery_code')
     .select('*')
     .eq('mail', email)
     .eq('code', code)
-    .lte('expired_at', new Date().toISOString()) // debe ser mayor que ahora
+    .gte('expired_at', new Date().toISOString()) // must be in the future
     .maybeSingle();
 
   if (error) throw error;
