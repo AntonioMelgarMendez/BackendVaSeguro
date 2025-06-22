@@ -28,36 +28,30 @@ async function getChild(req, res) {
 
 async function create(req, res) {
   try {
-    const child = req.body;
+    const { forenames, surnames, birth_date, medical_info, gender, parent_id, driver_id } = req.body;
+    const profilePicUrl = req.file ? await uploadToStorage(req.file) : null; 
 
-    if (req.file) {
-      const file = req.file;
-      const fileName = `child_${Date.now()}_${file.originalname}`;
+    const { data, error } = await supabase
+      .from('children')
+      .insert({
+        forenames,
+        surnames,
+        birth_date,
+        medical_info,
+        gender,
+        parent_id,
+        driver_id,
+        profile_pic: profilePicUrl
+      })
+      .select()
+      .single();
 
-      const { error: uploadError } = await supabase
-        .storage
-        .from('childrenavatar')
-        .upload(`avatars/${fileName}`, file.buffer, {
-          contentType: file.mimetype,
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase
-        .storage
-        .from('childrenavatar')
-        .getPublicUrl(`avatars/${fileName}`);
-
-      child.profile_pic = urlData.publicUrl;
-    }
-
-    const newChild = await createChild(child);
-    res.status(201).json(newChild);
+    if (error) throw error;
+    res.status(201).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
-
 
 async function update(req, res) {
   try {
