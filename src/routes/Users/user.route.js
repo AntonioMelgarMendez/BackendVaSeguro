@@ -26,6 +26,7 @@ router.post('/logout', authenticateToken, usersController.logout);
 router.put('/:id/password', authenticateToken, authorizeRoles('admin', 'user','driver'), usersController.changePassword);
 
 router.post('/recover-password', usersController.recoverPassword);
+router.post('verify-reset-code',usersController.verifyResetCode)
 
 
 module.exports = router;
