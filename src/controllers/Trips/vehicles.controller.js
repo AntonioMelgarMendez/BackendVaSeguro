@@ -25,7 +25,7 @@ async function getByDriverId(req,res){
     res.json(data)
   }
   catch(error){
-    res.status(4004).json({error:error.message})
+    res.status(404).json({error:error.message})
   }
 }
 
