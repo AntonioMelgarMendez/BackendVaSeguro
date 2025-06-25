@@ -7,7 +7,7 @@ async function getAllChildren() {
 }
 
 async function getChildById(id) {
-  const { data, error } = await supabase.from('children').select('*').eq('id', id).single();
+  const { data, error } = await supabase.from('children').select('*').eq('parent_id', id).single();
   if (error) throw error;
   return data;
 }
