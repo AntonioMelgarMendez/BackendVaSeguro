@@ -87,22 +87,7 @@ async function update(req, res) {
 }
 async function remove(req, res) {
   try {
-    const child = await getChildById(req.params.id);
-    if (!child) return res.status(404).json({ error: 'Child not found' });
-    if (child.profile_pic) {
-      const urlParts = child.profile_pic.split('/');
-      const filePath = urlParts.slice(7).join('/'); 
-      const { error: deleteError } = await supabase
-        .storage
-        .from('childrenavatar')
-        .remove([filePath]);
-
-      if (deleteError) {
-        console.warn('Error deleting image from Supabase:', deleteError.message);
-      }
-    }
-
-    await deleteChild(req.params.id);
+    await deleteChild(req.params.id); 
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: error.message });

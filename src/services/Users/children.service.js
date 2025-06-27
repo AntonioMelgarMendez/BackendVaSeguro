@@ -28,7 +28,6 @@ async function deleteChild(id) {
   const { error } = await supabase.from('children').delete().eq('id', id);
   if (error) throw error;
 }
-
 module.exports = {
   getAllChildren,
   getChildById,
