@@ -61,7 +61,20 @@ const {
   async function updateCodeState(req, res) {
     try {
       const { id } = req.params;
-      const updatedCode = await updateRegisterCodeState(id,true);
+      const updatedCode = await updateRegisterCodeState(id, true);
+  
+      const code = await getRegisterCodeById(id);
+      const users = await getUsersByIds([code.driver_id]);
+      const user = users && users.length > 0 ? users[0] : null;
+  
+      if (user && user.onesignal_player_id) {
+        await sendNotification({
+          playerIds: [user.onesignal_player_id],
+          title: 'Account Approved',
+          message: 'Your account has been approved!'
+        });
+      }
+  
       res.json(updatedCode);
     } catch (err) {
       res.status(500).json({ error: err.message });
