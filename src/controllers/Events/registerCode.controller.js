@@ -8,7 +8,7 @@ const {
     getUsersByIds
   } = require('../../services/Events/registerCode.service');
   const supabase = require('../../config/config');
-const sendNotification = require('../../utils/sendNotifications');
+  const sendNotification = require('../../utils/sendNotifications');
   
   async function getRegisterCodes(req, res) {
     try {

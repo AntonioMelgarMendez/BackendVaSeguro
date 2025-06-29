@@ -8,6 +8,8 @@ async function sendNotification({
   url,
   androidSound
 }) {
+  console.log("LLego hasta aca o algo");
+  console.log('sendNotification called with:', JSON.stringify(args));
   const fetch = (await import('node-fetch')).default;
   const appId = process.env.ONESIGNAL_APP_ID;
   const apiKey = process.env.ONESIGNAL_REST_API_KEY;
