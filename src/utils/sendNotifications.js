@@ -48,3 +48,4 @@ async function sendNotification({
 
   return responseBody;
 }
+module.exports = sendNotification;
