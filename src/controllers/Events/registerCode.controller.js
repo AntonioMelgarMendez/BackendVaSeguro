@@ -64,9 +64,15 @@ const {
       const updatedCode = await updateRegisterCodeState(id, true);
   
       const code = await getRegisterCodeById(id);
+      console.log("Register code:", JSON.stringify(code));
+      console.log("Driver ID:", code.driver_id);
+  
       const users = await getUsersByIds([code.driver_id]);
+      console.log("Users array:", JSON.stringify(users));
+  
       const user = users && users.length > 0 ? users[0] : null;
-      console.log("Hola soy este usuario"+user);
+      console.log("Hola soy este usuario:", JSON.stringify(user));
+  
       if (user && user.onesignal_player_id) {
         console.log(`Sending notification to user ${user.id} with player ID ${user.onesignal_player_id}`);
         await sendNotification({
@@ -76,10 +82,12 @@ const {
           imageUrl: 'https://example.com/image.png',
           buttons: [
             { id: 'view', text: 'View', icon: 'ic_menu_view' }
-          ], // optional
-          url: 'https://yourapp.com/account', 
+          ],
+          url: 'https://yourapp.com/account',
           androidSound: 'notification_sound'
         });
+      } else {
+        console.log("User or onesignal_player_id not found.");
       }
   
       res.json(updatedCode);
