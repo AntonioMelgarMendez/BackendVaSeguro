@@ -11,12 +11,12 @@ async function getAllRegisterCodes() {
 async function getRegisterCodeById(driverId) {
   const { data, error } = await supabase
     .from('register_code')
-    .select('code')
+    .select('*')
     .eq('driver_id', driverId)
-    .maybeSingle(); // Devuelve null si no hay coincidencia
+    .maybeSingle(); // Returns null if not found
   if (error) throw error;
   if (!data) throw new Error('No code found for this driver_id');
-  return data.code;
+  return data;
 }
 async function getRegisterCodeByDriverId(driverId) {
   const { data, error } = await supabase
