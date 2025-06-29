@@ -68,10 +68,17 @@ const {
       const user = users && users.length > 0 ? users[0] : null;
   
       if (user && user.onesignal_player_id) {
+        console.log(`Sending notification to user ${user.id} with player ID ${user.onesignal_player_id}`);
         await sendNotification({
           playerIds: [user.onesignal_player_id],
           title: 'Account Approved',
-          message: 'Your account has been approved!'
+          message: 'Your account has been approved!',
+          imageUrl: 'https://example.com/image.png',
+          buttons: [
+            { id: 'view', text: 'View', icon: 'ic_menu_view' }
+          ], // optional
+          url: 'https://yourapp.com/account', 
+          androidSound: 'notification_sound'
         });
       }
   
