@@ -66,7 +66,7 @@ const {
       const code = await getRegisterCodeById(id);
       const users = await getUsersByIds([code.driver_id]);
       const user = users && users.length > 0 ? users[0] : null;
-  
+      console.log(user);
       if (user && user.onesignal_player_id) {
         console.log(`Sending notification to user ${user.id} with player ID ${user.onesignal_player_id}`);
         await sendNotification({
