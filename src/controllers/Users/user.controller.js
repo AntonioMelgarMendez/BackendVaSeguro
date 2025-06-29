@@ -29,10 +29,9 @@ async function getUser(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-
 async function createUser(req, res) {
   try {
-    const { forenames, surnames, email, password, phone_number, gender, role_id } = req.body;
+    const { forenames, surnames, email, password, phone_number, gender, role_id, onesignal_player_id } = req.body;
     let avatarUrl = req.avatarUrl || null;
 
     const { data: existingUser } = await supabase
@@ -54,7 +53,8 @@ async function createUser(req, res) {
         phone_number,
         gender,
         role_id,
-        profile_pic: avatarUrl
+        profile_pic: avatarUrl,
+        onesignal_player_id // Save player ID
       })
       .select()
       .single();
@@ -63,14 +63,10 @@ async function createUser(req, res) {
 
     if (role_id == 4) {
       const generatedCode = generateRandomCode();
-      console.log('Generando código:', generatedCode, 'para driver_id:', newUser.id);
-    
-      const registerCode = await createRegisterCode({
+      await createRegisterCode({
         code: generatedCode,
         driver_id: newUser.id
       });
-    
-      console.log('Código generado correctamente:', registerCode);
     }
     
     const token = jwt.sign(
@@ -87,7 +83,8 @@ async function createUser(req, res) {
         surnames: newUser.surnames,
         phone_number: newUser.phone_number,
         profile_pic: newUser.profile_pic,
-        role_id: newUser.role_id
+        role_id: newUser.role_id,
+        onesignal_player_id: newUser.onesignal_player_id
       }
     });
 
@@ -164,7 +161,7 @@ async function deleteUser(req, res) {
 }
 async function login(req, res) {
   try {
-    const { email, password } = req.body;
+    const { email, password, onesignal_player_id } = req.body;
 
     const user = await usersService.getUserByEmail(email);
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -172,7 +169,7 @@ async function login(req, res) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(401).json({ error: 'Contraseña incorrecta' });
 
-    if (user.role_id== 4) {
+    if (user.role_id == 4) {
       const registerCode = await getRegisterCodeByDriverId(user.id);
       if (!registerCode || registerCode.state !== true) {
         return res.status(403).json({
@@ -180,6 +177,10 @@ async function login(req, res) {
           code: 403
         });
       }
+    }
+    if (onesignal_player_id) {
+      await usersService.updateUser(user.id, { onesignal_player_id });
+      user.onesignal_player_id = onesignal_player_id;
     }
 
     const token = jwt.sign(
