@@ -4,6 +4,9 @@ const {
   insertMessage,
   removeMessage,
 } = require('../../services/Users/chat.service');
+const { getUserById } = require('../../services/Users/user.service');
+const sendNotification = require('../../utils/sendNotifications'); 
+
 
 // API REST Controllers
 async function getAllMessages(req, res) {
@@ -24,16 +27,31 @@ async function getChatBetweenUsers(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-
 async function sendMessage(req, res) {
   try {
     const { sender_id, receiver_id, message } = req.body;
     const data = await insertMessage({ sender_id, receiver_id, message });
 
-    // Emitimos el mensaje a los sockets conectados (si existe)
+    // Emit to sockets
     if (global.io) {
       global.io.to(`user:${receiver_id}`).emit('newMessage', data);
       global.io.to(`user:${sender_id}`).emit('newMessage', data);
+    }
+
+    const sender = await getUserById(sender_id);
+    let imageUrl = null;
+    if (sender && sender.profile_pic) {
+      imageUrl = sender.profile_pic;
+    }
+    const receiver = await getUserById(receiver_id);
+    if (receiver && receiver.onesignal_player_id) {
+      await sendNotification({
+        playerIds: [receiver.onesignal_player_id],
+        title: 'New Message',
+        message: message,
+        data: { sender_id, receiver_id },
+        imageUrl: imageUrl 
+      });
     }
 
     res.status(201).json(data);

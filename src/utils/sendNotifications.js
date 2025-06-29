@@ -8,7 +8,6 @@ async function sendNotification({
   url,
   androidSound
 }) {
-  console.log("LLego hasta aca o algo");
   console.log('sendNotification called with:', {
     playerIds, title, message, data, imageUrl, buttons, url, androidSound
   });
