@@ -25,7 +25,7 @@ async function sendNotification({
   if (url) payload.url = url;
   if (androidSound) payload.android_sound = androidSound;
 
-  return fetch('https://onesignal.com/api/v1/notifications', {
+  const response = await fetch('https://onesignal.com/api/v1/notifications', {
     method: 'POST',
     headers: {
       'Authorization': `Basic ${apiKey}`,
@@ -33,6 +33,16 @@ async function sendNotification({
     },
     body: JSON.stringify(payload)
   });
+
+  const responseBody = await response.text();
+  console.log('OneSignal response status:', response.status);
+  console.log('OneSignal response body:', responseBody);
+
+  if (!response.ok) {
+    throw new Error(`OneSignal error: ${response.status} - ${responseBody}`);
+  }
+
+  return responseBody;
 }
 
 module.exports = sendNotification;
