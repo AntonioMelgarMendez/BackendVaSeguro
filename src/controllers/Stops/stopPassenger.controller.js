@@ -12,13 +12,25 @@ async function getAll(req, res) {
 async function getById(req, res) {
   try {
     const { id } = req.params;
-    const item = await service.getStopsPassengerById(id);
+    const item = await service.getStopsPassengerByDriverId(id);
     if (!item) return res.status(404).json({ message: 'Not found' });
     res.json(item);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
+
+async function getByDriverId(req, res) {
+  try {
+    const { driverId } = req.params;
+    const item = await service.getStopsPassengerByDriverId(driverId);
+    if (!item) return res.status(404).json({ message: 'Not found' });
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 
 async function create(req, res) {
   try {
@@ -60,4 +72,5 @@ module.exports = {
   create,
   update,
   remove,
+  getByDriverId,
 };

@@ -18,9 +18,9 @@ const stopsRoutes = require('./Stops/stops.route');
 const stopTypesRoutes = require('./Stops/stopType.route');
 const tripStatusLogRoutes = require('./Trips/tripsStatusLog.route');
 const vehicleRoutes = require('./Trips/vehicles.route');
+const stopsRouteRoute = require('./Stops/stopRoute.route');
 const { authenticateToken, authorizeRoles } = require('../middlewares/authentication');
 const router = express.Router();
-
 
 router.use('/children', childrenRoutes);
 router.use('/users', usersRoutes);
@@ -34,11 +34,12 @@ router.use('/route-status', routeStatusRoutes);
 router.use('/route-type', routeTypeRoutes);
 router.use('/routes', routeRoutes);
 router.use('/stop-passenger-types', stopPassengerTypesRoutes);
-router.use('/stops-passengers', stopsPassengersRoutes);
+router.use('/stops-passenger', stopsPassengersRoutes);
 router.use('/stops-passengers-events', stopsPassengersEventsRoutes);
 router.use('/stops', stopsRoutes);
 router.use('/stop-types', stopTypesRoutes);
 router.use('/trip-status-log', tripStatusLogRoutes);
 router.use('/vehicles', vehicleRoutes);
+router.use('/stop-routes', stopsRouteRoute);
 
 module.exports = router;

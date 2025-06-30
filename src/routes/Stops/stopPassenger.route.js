@@ -2,10 +2,7 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../../controllers/Stops/stopPassenger.controller');
 
-router.get('/', controller.getAll);
-router.get('/:id', controller.getById);
-router.post('/', controller.create);
-router.put('/:id', controller.update);
-router.delete('/:id', controller.remove);
+// GET /stops-passengers/driver/:driverId
+router.get('/driver/:driverId', controller.getByDriverId);
 
 module.exports = router;

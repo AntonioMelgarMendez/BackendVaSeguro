@@ -26,8 +26,20 @@ async function createRoute(req, res) {
     if (!route.name || !route.start_date || !route.vehicle_id || !route.status_id || !route.type_id) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
-
     const newRoute = await routesService.createRoute(route);
+    res.status(201).json(newRoute);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+async function createFullRoute(req, res) {
+  try {
+    const route = req.body;
+    if (!route.name || !route.start_date || !route.vehicle_id || !route.status_id || !route.type_id || !Array.isArray(route.stopRoute)) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+    const newRoute = await routesService.createFullRoute(route);
     res.status(201).json(newRoute);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -60,6 +72,7 @@ module.exports = {
   getAllRoutes,
   getRouteById,
   createRoute,
+  createFullRoute,
   updateRoute,
   deleteRoute,
 };

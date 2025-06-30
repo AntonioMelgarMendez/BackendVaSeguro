@@ -16,6 +16,26 @@ async function getStopsPassengerById(id) {
   return data;
 }
 
+async function getStopsPassengerByDriverId(driverId) {
+  const { data, error } = await supabase
+    .from('stops_route')
+    .select(`
+      stops_passengers:stops_passengers_id (*),
+      route:route_id (
+        vehicle:vehicle_id (
+          driver_id
+        )
+      )
+    `)
+    .eq('route.vehicle.driver_id', driverId);
+
+  if (error) throw error;
+
+  // Extraer y devolver solo los stops_passengers con toda su información
+  return data?.map(item => item.stops_passengers) || [];
+}
+
+
 async function createStopsPassenger(entry) {
   const { data, error } = await supabase
     .from('stops_passengers')
@@ -51,4 +71,5 @@ module.exports = {
   createStopsPassenger,
   updateStopsPassenger,
   deleteStopsPassenger,
+  getStopsPassengerByDriverId,
 };

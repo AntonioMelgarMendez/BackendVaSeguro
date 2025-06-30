@@ -25,6 +25,38 @@ async function createRoute(route) {
   return data[0];
 }
 
+async function createFullRoute(routeData) {
+  const { stopRoute, ...routeInfo } = routeData;
+
+  // Insertar la ruta
+  const { data: routeInsert, error: routeError } = await supabase
+    .from('routes')
+    .insert([routeInfo])
+    .select()
+    .single();
+
+  if (routeError) throw routeError;
+
+  const routeId = routeInsert.id;
+
+  // Preparar stopRoutes con route_id asignado
+  const stopRoutesToInsert = stopRoute.map(sr => ({
+    route_id: routeId,
+    stops_passengers_id: sr.stopPassengerId,
+    order: sr.order,
+    state: sr.state
+  }));
+
+  // Insertar stops_routes
+  const { error: stopRoutesError } = await supabase
+    .from('stops_route')
+    .insert(stopRoutesToInsert);
+
+  if (stopRoutesError) throw stopRoutesError;
+
+  return routeInsert;
+}
+
 async function updateRoute(id, route) {
   const { data, error } = await supabase.from('routes').update(route).eq('id', id);
   if (error) throw error;
@@ -41,6 +73,7 @@ module.exports = {
   getAllRoutes,
   getRouteById,
   createRoute,
+  createFullRoute,
   updateRoute,
   deleteRoute,
 };
