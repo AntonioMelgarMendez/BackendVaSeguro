@@ -20,7 +20,15 @@ async function getStopsPassengerByDriverId(driverId) {
   const { data, error } = await supabase
     .from('stops_route')
     .select(`
-      stops_passengers:stops_passengers_id (*),
+      stops_passengers:stops_passengers_id (
+        *,
+        stop:stop_id (
+          id,
+          name,
+          latitude,
+          longitude
+        )
+      ),
       route:route_id (
         vehicle:vehicle_id (
           driver_id
@@ -31,7 +39,7 @@ async function getStopsPassengerByDriverId(driverId) {
 
   if (error) throw error;
 
-  // Extraer y devolver solo los stops_passengers con toda su información
+  // Extraer y devolver los stops_passengers con su stop asociado
   return data?.map(item => item.stops_passengers) || [];
 }
 
