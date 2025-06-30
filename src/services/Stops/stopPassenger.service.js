@@ -21,7 +21,7 @@ async function getStopsPassengerByDriverId(driverId) {
     .from('stops_route')
     .select(`
       stops_passengers:stops_passengers_id (
-        *,
+      *,
         stop:stop_id (
           id,
           name,
@@ -39,8 +39,17 @@ async function getStopsPassengerByDriverId(driverId) {
 
   if (error) throw error;
 
-  // Extraer y devolver los stops_passengers con su stop asociado
-  return data?.map(item => item.stops_passengers) || [];
+  // Extraer stops_passengers y eliminar duplicados por ID
+  const passengers = data?.map(item => item.stops_passengers) || [];
+
+  const uniqueById = new Map();
+  for (const p of passengers) {
+    if (p && !uniqueById.has(p.id)) {
+      uniqueById.set(p.id, p);
+    }
+  }
+
+  return Array.from(uniqueById.values());
 }
 
 
