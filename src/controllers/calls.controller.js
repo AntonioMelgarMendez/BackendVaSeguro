@@ -2,31 +2,31 @@ const callsService = require('../utils/callService');
 const sendNotification = require('../utils/sendNotifications');
 
 async function createCall(req, res) {
-  try {
-    const call = await callsService.createCall(req.body);
-
-    // Get callee's OneSignal player ID
-    const playerId = await callsService.getPlayerIdForUser(call.callee_id);
-    const buttons = [
+    try {
+      const call = await callsService.createCall(req.body);
+  
+      // Use the original callee_id from the request body
+      const playerId = await callsService.getPlayerIdForUser(req.body.callee_id);
+      const buttons = [
         { id: 'answer', text: 'Answer' },
         { id: 'hangup', text: 'Hang up' }
       ];
       
-    if (playerId) {
+      if (playerId) {
         await sendNotification({
-            playerIds: [playerId],
-            title: 'Incoming Call',
-            message: `You have a call from user ${call.caller_id}`,
-            data: { callId: call.id },
-            buttons 
-          });
+          playerIds: [playerId],
+          title: 'Incoming Call',
+          message: `You have a call from user ${call.caller_id}`,
+          data: { callId: call.id },
+          buttons 
+        });
+      }
+  
+      res.status(201).json(call);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-
-    res.status(201).json(call);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
-}
 
 async function getCallById(req, res) {
   try {
