@@ -100,7 +100,7 @@ async function createFullRoute(routeData) {
 }
 
 async function updateRoute(id, route) {
-  const { data, error } = await supabase.from('routes').update(route).eq('id', id);
+  const { data, error } = await supabase.from('routes').update(route).eq('id', id).select();
   if (error) throw error;
   return data[0];
 }
