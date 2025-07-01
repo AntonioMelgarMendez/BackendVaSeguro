@@ -4,6 +4,8 @@ const routesController = require('../../controllers/Routes/route.controller');
 
 router.get('/', routesController.getAllRoutes);
 router.get('/:id', routesController.getRouteById);
+router.get('/driver/:driverId', routesController.getRouteByDriverId);
+
 router.post('/', routesController.createRoute);
 router.post('/full', routesController.createFullRoute);
 

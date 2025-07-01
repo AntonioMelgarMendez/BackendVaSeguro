@@ -20,6 +20,17 @@ async function getRouteById(req, res) {
   }
 }
 
+async function getRouteByDriverId(req, res) {
+  try {
+    const { driverId } = req.params;
+    const routes = await routesService.getRoutesByDriverId(driverId);
+    if (!routes) return res.status(404).json({ message: 'Routes not found' });
+    res.json(routes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 async function createRoute(req, res) {
   try {
     const route = req.body;
@@ -71,6 +82,7 @@ async function deleteRoute(req, res) {
 module.exports = {
   getAllRoutes,
   getRouteById,
+  getRouteByDriverId,
   createRoute,
   createFullRoute,
   updateRoute,

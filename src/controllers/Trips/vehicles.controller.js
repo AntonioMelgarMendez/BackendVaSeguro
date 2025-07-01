@@ -18,6 +18,7 @@ async function getById(req, res) {
     res.status(404).json({ error: error.message });
   }
 }
+
 async function getByDriverId(req,res){
   try{
     const {driver_id}=req.params;

@@ -17,16 +17,19 @@ async function getStopsPassengerById(id) {
 }
 
 async function getStopsPassengerByDriverId(driverId) {
-  const { data, error } = await supabase
+    const { data, error } = await supabase
     .from('stops_route')
     .select(`
       stops_passengers:stops_passengers_id (
-      *,
+        *,
         stop:stop_id (
           id,
           name,
           latitude,
           longitude
+        ),
+        child:child_id (
+          *
         )
       ),
       route:route_id (
