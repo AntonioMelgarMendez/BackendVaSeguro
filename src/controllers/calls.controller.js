@@ -3,7 +3,7 @@ const sendNotification = require('../utils/sendNotifications');
 
 async function createCall(req, res) {
     try {
-        console.log(re.body)
+     console.log(req.body)
       const call = await callsService.createCall(req.body);
   
       // Use the original callee_id from the request body
