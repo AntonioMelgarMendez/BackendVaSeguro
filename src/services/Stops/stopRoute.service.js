@@ -19,13 +19,14 @@ async function getActiveStopRoutesByChildId(childId) {
       )
     `)
     .eq('stops_passengers.child_id', childId)
-    .not('routes.status_id', 'in', '(1,4)'); // Excluir "Sin iniciar" y "Finalizada"
+    .not('routes.status_id', 'in', '(1,4)')
+    .not('route_id', 'is', null); // Asegurar que route_id no sea null
 
   if (error) throw error;
 
-  return data;
+  // Filtrar adicionalmente por si acaso (como medida de seguridad)
+  return data.filter(item => item.routes !== null);
 }
-
 
 async function updateStopRouteByPassengerAndRoute(stopPassengerId, routeId, entry) {
   const { data, error } = await supabase
