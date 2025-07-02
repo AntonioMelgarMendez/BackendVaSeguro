@@ -69,6 +69,31 @@ async function updateRoute(req, res) {
   }
 }
 
+async function closeAllRoutesExcept(req, res) {
+  try {
+    const { id } = req.params;
+    const { driverId } = req.query;
+
+    const updatedRoutes = await routesService.closeAllRoutesExcept(Number(id), Number(driverId));
+    res.json(updatedRoutes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+async function closeAllRoutes(req, res) {
+  try {
+    const driverId = Number(req.query.driverId);
+    if (isNaN(driverId)) return res.status(400).json({ error: 'Invalid driverId' });
+
+    const updatedRoutes = await routesService.closeAllRoutesByDriver(driverId);
+    res.json(updatedRoutes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
 async function deleteRoute(req, res) {
   try {
     const { id } = req.params;
@@ -87,4 +112,6 @@ module.exports = {
   createFullRoute,
   updateRoute,
   deleteRoute,
+  closeAllRoutes,
+  closeAllRoutesExcept
 };
