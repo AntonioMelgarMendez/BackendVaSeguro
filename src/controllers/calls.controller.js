@@ -3,28 +3,32 @@ const sendNotification = require('../utils/sendNotifications');
 
 async function createCall(req, res) {
     try {
-     console.log(req.body)
+      console.log('Request body:', req.body);
       const call = await callsService.createCall(req.body);
+      console.log('Call created:', call);
   
-      // Use the original callee_id from the request body
       const playerId = await callsService.getPlayerIdForUser(req.body.callee_id);
+      console.log('Player ID:', playerId);
+  
       const buttons = [
         { id: 'answer', text: 'Answer' },
         { id: 'hangup', text: 'Hang up' }
       ];
-      
+  
       if (playerId) {
         await sendNotification({
           playerIds: [playerId],
           title: 'Incoming Call',
           message: `You have a call from user ${call.caller_id}`,
           data: { callId: call.id },
-          buttons 
+          buttons
         });
+        console.log('Notification sent');
       }
   
       res.status(201).json(call);
     } catch (error) {
+      console.error('Error in createCall:', error);
       res.status(500).json({ error: error.message });
     }
   }
