@@ -20,6 +20,7 @@ const tripStatusLogRoutes = require('./Trips/tripsStatusLog.route');
 const vehicleRoutes = require('./Trips/vehicles.route');
 const stopsRouteRoute = require('./Stops/stopRoute.route');
 const { authenticateToken, authorizeRoles } = require('../middlewares/authentication');
+const callsRoutes = require('./call.route');
 const router = express.Router();
 
 router.use('/children', childrenRoutes);
@@ -41,5 +42,6 @@ router.use('/stop-types', stopTypesRoutes);
 router.use('/trip-status-log', tripStatusLogRoutes);
 router.use('/vehicles', vehicleRoutes);
 router.use('/stop-routes', stopsRouteRoute);
+router.use('/calls',callsRoutes);
 
 module.exports = router;
