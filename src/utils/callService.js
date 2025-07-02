@@ -2,13 +2,14 @@
 const supabase = require('../config/config');
 
 async function createCall(call) {
-  const { data, error } = await supabase
-    .from('Calls')
-    .insert(call)
-    .single();
-  if (error) throw error;
-  return data;
-}
+    const { data, error } = await supabase
+      .from('Calls')
+      .insert(call)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
 
 async function getCallById(id) {
   const { data, error } = await supabase
