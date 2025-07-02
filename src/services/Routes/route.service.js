@@ -53,9 +53,42 @@ async function getRoutesByDriverId(driverId) {
 async function getRouteById(id) {
   const { data, error } = await supabase
     .from('routes')
-    .select('*, route_status(status), route_types(type), vehicles(*)')
+    .select(`
+      *,
+      route_status:status_id (*),
+      route_types:type_id (*),
+      vehicles:vehicle_id (
+        * ,
+        driver_id
+      ),
+      stops_route (
+        *,
+        stops_passengers:stops_passengers_id (
+          *,
+          stops:stop_id (
+            id,
+            name,
+            latitude,
+            longitude
+          ),
+          children:child_id (
+            id,
+            forenames,
+            surnames,
+            birth_date,
+            driver_id,
+            parent_id,
+            medical_info,
+            created_at,
+            profile_pic,
+            gender
+          )
+        )
+      )
+    `)
     .eq('id', id)
     .single();
+
   if (error) throw error;
   return data;
 }
