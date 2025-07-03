@@ -17,42 +17,24 @@ async function getStopsPassengerById(id) {
 }
 
 async function getStopsPassengerByDriverId(driverId) {
-    const { data, error } = await supabase
-    .from('stops_route')
+  const { data, error } = await supabase
+    .from('stops_passengers')
     .select(`
-      stops_passengers:stops_passengers_id (
-        *,
-        stop:stop_id (
-          id,
-          name,
-          latitude,
-          longitude
-        ),
-        child:child_id (
-          *
-        )
+      *,
+      stop:stop_id (
+        id,
+        name,
+        latitude,
+        longitude
       ),
-      route:route_id (
-        vehicle:vehicle_id (
-          driver_id
-        )
+      child:child_id (
+        *
       )
     `)
-    .eq('route.vehicle.driver_id', driverId);
+    .eq('child.driver_id', driverId);
 
   if (error) throw error;
-
-  // Extraer stops_passengers y eliminar duplicados por ID
-  const passengers = data?.map(item => item.stops_passengers) || [];
-
-  const uniqueById = new Map();
-  for (const p of passengers) {
-    if (p && !uniqueById.has(p.id)) {
-      uniqueById.set(p.id, p);
-    }
-  }
-
-  return Array.from(uniqueById.values());
+  return data;
 }
 
 
