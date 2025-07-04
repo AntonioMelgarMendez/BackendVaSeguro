@@ -1,0 +1,38 @@
+# Backend VaSeguro
+
+## Requisitos
+
+Antes de comenzar, asegúrate de tener instalados los siguientes programas:
+
+- [Node.js](https://nodejs.org/) (versión 16 o superior)  
+- [npm](https://www.npmjs.com/) (incluido con Node.js)
+
+## Instalación
+
+1. Clona este repositorio:
+
+    ```bash
+    git clone <URL_DEL_REPOSITORIO>
+    cd backendvaseguro
+    ```
+
+2. Instala las dependencias:
+
+    ```bash
+    npm install
+    ```
+
+## Configuración de Variables de Entorno
+
+Crea un archivo `.env` en la raíz del proyecto y define las siguientes variables de entorno:
+
+```env
+SUPABASE_URL=""
+SUPABASE_SERVICE_ROLE_KEY=""
+PORT=3000
+NODE_ENV=development
+SUPABASE_JWT_SECRET=""
+RESET_PASSWORD_SECRET=""
+RESEND_API_KEY=""
+ONESIGNAL_APP_ID=""
+ONESIGNAL_REST_API_KEY=""
